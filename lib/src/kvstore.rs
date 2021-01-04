@@ -130,7 +130,7 @@ mod tests {
 
     use super::*;
 
-    #[tokio::test(threaded_scheduler)]
+    #[tokio::test(flavor = "multi_thread")]
     async fn kvstore_read_and_write() {
         let path = "/tmp/test_kvstore_read_and_write.rocksdb";
         let _ = DB::destroy(&Options::default(), path);

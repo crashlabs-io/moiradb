@@ -94,7 +94,7 @@ mod tests {
         }
     }
 
-    #[tokio::test(threaded_scheduler)]
+    #[tokio::test(flavor = "multi_thread")]
     async fn payment_test_correct() {
         let path = "/tmp/payment_test_correct.rocksdb";
         let _ = DB::destroy(&Options::default(), path);
@@ -165,7 +165,7 @@ mod tests {
         );
     }
 
-    #[tokio::test(threaded_scheduler)]
+    #[tokio::test(flavor = "multi_thread")]
     async fn full_payment_test() {
         // Create the database
         let path = "/tmp/full_payment_test.rocksdb";
