@@ -1,0 +1,17 @@
+[package]
+name = "moiradb-command-examples"
+version = "0.1.0"
+authors = ["Dave Hrycyszyn <futurechimp@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+moiradb = { path = "../lib"}
+async-trait = "0.1.42"
+bincode = "1.3"
+num_cpus = "1.13.0"
+rand = "0.7.3"
+rocksdb = "0.15.0"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "0.2.24", features = [ "full" ] }

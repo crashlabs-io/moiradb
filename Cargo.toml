@@ -1,0 +1,5 @@
+[workspace]
+members = ["lib", "moiradb-command-examples"]
+
+[profile.release]
+debug = true
