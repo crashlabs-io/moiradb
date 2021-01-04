@@ -15,7 +15,7 @@ num_cpus = "1.13.0"
 rand = "0.7.3"
 rocksdb = "0.15.0"
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "0.2.24", features = [ "full" ] }
+tokio = { version = "1.0", features = [ "full" ] }
 
 [dev-dependencies]
 criterion = "0.3.3"
