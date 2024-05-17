@@ -36,20 +36,20 @@ where
     pub async fn read(&mut self, key: K) -> DBValue<V> {
         let (send, response) = oneshot::channel();
         if let Err(e) = self.sender.send(KVCommand::Read(key, send)) {
-            panic!(format!("SendError: {:?}", e));
+            panic!("SendError: {:?}", e);
         }
         response.await.unwrap()
     }
 
     pub fn read_to_fut(&mut self, key: K, fut: oneshot::Sender<DBValue<V>>) {
         if let Err(e) = self.sender.send(KVCommand::Read(key, fut)) {
-            panic!(format!("SendError: {:?}", e));
+            panic!("SendError: {:?}", e);
         }
     }
 
     pub fn write(&mut self, write_set: Vec<(K, DBValue<V>)>) {
         if let Err(e) = self.sender.send(KVCommand::Write(write_set)) {
-            panic!(format!("SendError: {:?}", e));
+            panic!("SendError: {:?}", e);
         }
     }
 }
@@ -156,4 +156,13 @@ mod tests {
         let v = kv_adapter.read("A".to_string()).await;
         assert_eq!(None, *v);
     }
+}
+
+#[cfg(test)]
+pub fn setup_database(test_name: &str) -> KVAdapter<String, String> {
+    let path = format!("/tmp/test_{}.rocksdb", test_name);
+    let _ = DB::destroy(&rocksdb::Options::default(), path.clone());
+    let store = DB::open_default(path).expect("database barfed on open");
+    let (kv_adapter, _) = init::<String, String>(store);
+    kv_adapter
 }

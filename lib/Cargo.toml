@@ -5,21 +5,18 @@ authors = ["Dave Hrycyszyn"]
 edition = "2018"
 license = "Apache-2.0"
 description = "An experimental deterministic database"
-repository = "https://github.com/futurechimp/moiradb"
-keywords = ["deterministic","database","blockchain"]
+repository = "https://github.com/crashlabs-io/moiradb"
+keywords = ["deterministic", "database", "blockchain"]
 categories = ["database-implementations"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.42"
+async-trait = "0.1.82"
 bincode = "1.3"
-futures = "0.3.8"
-num_cpus = "1.13.0"
-rand = "0.7.3"
+futures = "0.3.30"
+num_cpus = "1.16.0"
+rand = "0.8.5"
 rocksdb = "0.22.0"
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.0", features = [ "full" ] }
-
-
-
+tokio = { version = "1.40", features = ["full"] }

@@ -17,7 +17,7 @@ use crate::{
 #[derive(Debug)]
 pub struct Read<V> {
     // The index of the start entry for this read.
-    start_entry: usize,
+    // start_entry: usize,
     // Sequence number of read
     seq: u64,
     // The response channel for this read.
@@ -118,7 +118,7 @@ where
                 Ordering::Less => Ordering::Greater,
             })
             .unwrap();
-        let mut entry = entry_list.get_mut(pos).unwrap();
+        let entry = entry_list.get_mut(pos).unwrap();
         let mut futures = Vec::with_capacity(entry.futures.len());
 
         if entry.seq == seq {
@@ -134,7 +134,7 @@ where
             }
         } else {
             // No entry -- panic
-            panic!(format!("Could not find key {:?} at seq {:?}", key, seq));
+            panic!("Could not find key {:?} at seq {:?}", key, seq);
         }
 
         while let Some(read_fut) = futures.pop() {
@@ -209,7 +209,7 @@ where
                     .unwrap();
 
                 let read_fut = Read {
-                    start_entry: idx,
+                    // start_entry: idx,
                     seq,
                     response: call_back,
                     merged_values: Vec::new(),
@@ -241,9 +241,8 @@ where
 
 #[cfg(test)]
 mod test_prepare {
-    use rocksdb::{Options, DB};
 
-    use crate::kvstore::init;
+    use crate::kvstore;
     use crate::moiradb::MoiraDb;
     use crate::types::TransactionResult;
     use async_trait::async_trait;
@@ -259,7 +258,7 @@ mod test_prepare {
 
     #[tokio::test]
     async fn test_prepare_one() {
-        let kv_adapter = setup_database("prepare_one");
+        let kv_adapter = kvstore::setup_database("prepare_one");
         let mut mv_store = MultiVersionedStore::<String, String, String>::new(kv_adapter);
         let block = make_block_one();
         mv_store.prepare(&block);
@@ -271,7 +270,7 @@ mod test_prepare {
 
     #[tokio::test]
     async fn test_prepare_many() {
-        let kv_adapter = setup_database("prepare_many");
+        let kv_adapter = kvstore::setup_database("prepare_many");
 
         let mut mv_store = MultiVersionedStore::<String, String, String>::new(kv_adapter);
         let block = make_block_many();
@@ -326,7 +325,7 @@ mod test_prepare {
 
                 #[tokio::test]
                 async fn returns_none() {
-                    let kv_adapter = setup_database("returns_none");
+                    let kv_adapter = kvstore::setup_database("returns_none");
                     let mut mv_store =
                         MultiVersionedStore::<String, String, String>::new(kv_adapter);
                     let (send, read_response) = oneshot::channel();
@@ -344,7 +343,7 @@ mod test_prepare {
 
                 #[tokio::test]
                 async fn it_returns_the_value() {
-                    let mut kv_adapter = setup_database("value_in_backing_store");
+                    let mut kv_adapter = kvstore::setup_database("value_in_backing_store");
                     kv_adapter.write(vec![(
                         "EXPECTED_KEY".to_string(),
                         Arc::new(Some("EXPECTED_VALUE".to_string())),
@@ -371,7 +370,7 @@ mod test_prepare {
 
                 #[tokio::test]
                 async fn it_return_the_written_value() {
-                    let kv_adapter = setup_database("returns_what_I_write");
+                    let kv_adapter = kvstore::setup_database("returns_what_I_write");
                     let mut mv_store =
                         MultiVersionedStore::<String, String, String>::new(kv_adapter);
                     let (send, read_response) = oneshot::channel();
@@ -394,7 +393,7 @@ mod test_prepare {
 
                 #[tokio::test]
                 async fn it_return_what_was_written_even_on_later_read() {
-                    let kv_adapter = setup_database("returns_what_I_write_even_later");
+                    let kv_adapter = kvstore::setup_database("returns_what_I_write_even_later");
                     let mut mv_store =
                         MultiVersionedStore::<String, String, String>::new(kv_adapter);
                     let (send, read_response) = oneshot::channel();
@@ -425,7 +424,7 @@ mod test_prepare {
 
                 #[tokio::test]
                 async fn reads_give_me_old_value() {
-                    let kv_adapter = setup_database("reads_give_me_old_value");
+                    let kv_adapter = kvstore::setup_database("reads_give_me_old_value");
                     let mut mv_store =
                         MultiVersionedStore::<String, String, String>::new(kv_adapter);
                     let (send, read_response) = oneshot::channel();
@@ -453,7 +452,7 @@ mod test_prepare {
                 // This one tests the futures, basically
                 #[tokio::test]
                 async fn early_reads_give_me_old_value() {
-                    let kv_adapter = setup_database("early_reads_give_me_old_value");
+                    let kv_adapter = kvstore::setup_database("early_reads_give_me_old_value");
                     let mut mv_store =
                         MultiVersionedStore::<String, String, String>::new(kv_adapter);
                     let (send, read_response) = oneshot::channel();
@@ -479,14 +478,6 @@ mod test_prepare {
                 }
             }
         }
-    }
-
-    pub fn setup_database(test_name: &str) -> KVAdapter<String, String> {
-        let path = format!("/tmp/test_{}.rocksdb", test_name);
-        let _ = DB::destroy(&Options::default(), path.clone());
-        let store = DB::open_default(path).expect("database barfed on open");
-        let (kv_adapter, _) = init::<String, String>(store);
-        kv_adapter
     }
 
     fn make_block_one() -> Block<String, String> {

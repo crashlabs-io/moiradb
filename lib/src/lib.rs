@@ -56,7 +56,7 @@ pub async fn execute_block<K, V, C>(
     while let Some(mut inner_block) = inner_blocks.pop() {
         let inner_command_sender = command_sender.clone();
 
-        // We're making on tokio task per inner block
+        // We're making one tokio task per inner block
         tokio::spawn(async move {
             // We will make one future per transaction and put them in this bag
             let mut transaction_bag = FuturesUnordered::new();
@@ -78,7 +78,7 @@ pub async fn execute_block<K, V, C>(
                 // Add one more
                 if let Some(trans) = inner_block.pop_front() {
                     let mdb = MoiraDb::new(trans.clone(), inner_command_sender.clone());
-                    let fut = mdb.run_command(); // no wait here!
+                    let fut = mdb.run_command(); // no .await here!
                     transaction_bag.push(fut);
                 }
             }
