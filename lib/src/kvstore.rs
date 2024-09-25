@@ -54,15 +54,6 @@ where
     }
 }
 
-/*
-pub struct KVBackend<K,V> {
-    pub kvstore : DB,
-    pub cache : HashMap<K,V>,
-    pub receiver : mpsc::Receiver<KVCommand<K,V>>,
-}
-*/
-
-// question: is this not basically a new? Can we put it into the impl?
 pub fn init<K, V>(db: DB) -> (KVAdapter<K, V>, JoinHandle<()>)
 where
     K: 'static + Send + Serialize + Debug,

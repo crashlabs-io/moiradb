@@ -1,8 +1,6 @@
-extern crate moiradb;
-
 use criterion::{criterion_group, criterion_main, Criterion};
 use moiradb_command_examples::{
-    benchmark_singlethread::{execute, NotMoiraDb},
+    benchmark_singlethread::{execute, NotMoiraTask},
     payment::{Account, AccountKey, PaymentCommand},
 };
 use rocksdb::{Options, DB};
@@ -12,7 +10,7 @@ fn bench_single_threaded_payment(c: &mut Criterion) {
     let path = "/tmp/bench_insert_singlethread.rocksdb";
     let _ = DB::destroy(&Options::default(), path);
     let store = DB::open_default(path).expect("database barfed on open");
-    let mut db = NotMoiraDb { seq: 0, store };
+    let mut db = NotMoiraTask { seq: 0, store };
 
     for account in 0u8..255 {
         let key: AccountKey = [account; 32];

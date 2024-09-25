@@ -1,4 +1,4 @@
-pub use crate::moiradb::{MoiraDb, WriteType};
+pub use crate::moira::{Task, WriteType};
 pub use crate::types::{
     Block, Command, ExecState, MergeCommand, MoiraCommand, Transaction, TransactionResult,
 };
@@ -14,7 +14,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 
 pub mod kvstore;
-pub mod moiradb;
+pub mod moira;
 pub mod multistore;
 pub mod types;
 
@@ -63,9 +63,9 @@ pub async fn execute_block<K, V, C>(
 
             // Make and put all transactions as futures in a bag
             let mut idx = 0;
-            while let Some(trans) = inner_block.pop_front() {
-                let moiradb = MoiraDb::new(trans.clone(), inner_command_sender.clone());
-                let fut = moiradb.run_command(); // no .await here! We set up the future but don't run it.
+            while let Some(transaction) = inner_block.pop_front() {
+                let moira_task = Task::new(transaction.clone(), inner_command_sender.clone());
+                let fut = moira_task.run_command(); // no .await here! We set up the future but don't run it.
                 transaction_bag.push(fut);
                 idx += 1;
                 if idx == CONCURRENT_FUTURES {
@@ -76,8 +76,8 @@ pub async fn execute_block<K, V, C>(
             // Now execute them one by one in any order.
             while let Some(_) = transaction_bag.next().await {
                 // Add one more
-                if let Some(trans) = inner_block.pop_front() {
-                    let mdb = MoiraDb::new(trans.clone(), inner_command_sender.clone());
+                if let Some(transaction) = inner_block.pop_front() {
+                    let mdb = moira::Task::new(transaction.clone(), inner_command_sender.clone());
                     let fut = mdb.run_command(); // no .await here!
                     transaction_bag.push(fut);
                 }
@@ -105,7 +105,7 @@ pub async fn execute_block<K, V, C>(
 
                 match final_outcome {
                     TransactionResult::Commit => {
-                        // println!("Commit {}", db.seq);
+                        tracing::debug!("Commit {}", db.seq);
                         for key in &db.write_set {
                             if db.kv_store.contains_key(&key) {
                                 match &db.kv_store[&key] {
@@ -120,7 +120,7 @@ pub async fn execute_block<K, V, C>(
                                             .await;
                                     }
                                     WriteType::Merge(val) => {
-                                        // println!("Merge to key {:?}", key);
+                                        tracing::debug!("Merge to key {:?}", key);
                                         multi_versioned_store
                                             .write(
                                                 &key,
@@ -133,13 +133,13 @@ pub async fn execute_block<K, V, C>(
                                 };
                             } else {
                                 multi_versioned_store
-                                    .write(key, None, db.seq, ExecState::NoWrite)
+                                    .write(&key, None, db.seq, ExecState::NoWrite)
                                     .await;
                             }
                         }
                     }
                     TransactionResult::Abort(_) => {
-                        // println!("Abort {}", db.seq);
+                        tracing::debug!("Abort {}", db.seq);
                         for key in &db.write_set {
                             multi_versioned_store
                                 .write(key, None, db.seq, ExecState::Abort)
@@ -147,7 +147,7 @@ pub async fn execute_block<K, V, C>(
                         }
                     }
                     TransactionResult::Reschedule => {
-                        // println!("Reschedule {}", db.seq);
+                        tracing::debug!("Reschedule {}", db.seq);
                         for key in &db.write_set {
                             multi_versioned_store
                                 .write(key, None, db.seq, ExecState::Reschedule)

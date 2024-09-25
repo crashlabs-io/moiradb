@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use tokio::sync::oneshot;
 
-use crate::moiradb::MoiraDb;
+use crate::moira;
 pub type DBValue<V> = Arc<Option<V>>;
 
 pub type Block<K, C> = Vec<Arc<Transaction<K, C>>>;
@@ -17,7 +17,7 @@ where
     V: Debug,
     Self: Debug,
 {
-    async fn execute(&self, db: &mut MoiraDb<K, V, Self>) -> TransactionResult;
+    async fn execute(&self, db: &mut moira::Task<K, V, Self>) -> TransactionResult;
 
     fn merge_operator(_key: &K, _prev_value: DBValue<V>, _updates: Vec<DBValue<V>>) -> DBValue<V> {
         unimplemented!();
@@ -58,7 +58,7 @@ where
     V: Debug,
 {
     Read(K, u64, oneshot::Sender<(Vec<DBValue<V>>, DBValue<V>)>),
-    Outcome(MoiraDb<K, V, C>),
+    Outcome(moira::Task<K, V, C>),
 }
 
 #[derive(Debug)]

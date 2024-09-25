@@ -243,7 +243,7 @@ where
 mod test_prepare {
 
     use crate::kvstore;
-    use crate::moiradb::MoiraDb;
+    use crate::moira;
     use crate::types::TransactionResult;
     use async_trait::async_trait;
 
@@ -251,7 +251,7 @@ mod test_prepare {
 
     #[async_trait]
     impl Command<String, String> for String {
-        async fn execute(&self, _db: &mut MoiraDb<String, String, Self>) -> TransactionResult {
+        async fn execute(&self, _db: &mut moira::Task<String, String, Self>) -> TransactionResult {
             TransactionResult::Commit
         }
     }

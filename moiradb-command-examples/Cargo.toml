@@ -7,15 +7,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-moiradb = { path = "../lib"}
 async-trait = "0.1.82"
 bincode = "1.3"
 futures = "0.3.30"
+moiradb = { path = "../lib" }
 num_cpus = "1.16.0"
 rand = "0.8.5"
 rocksdb = "0.22.0"
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.40", features = [ "full" ] }
+tokio = { version = "=1.40.0", features = ["full"] }
 
 [dev-dependencies]
 criterion = "0.5.1"

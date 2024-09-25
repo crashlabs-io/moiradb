@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use moiradb::{Command, MoiraDb, TransactionResult};
+use moiradb::{Command, Task, TransactionResult};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 // use std::{thread, time::Duration};
@@ -22,7 +22,7 @@ pub struct PaymentCommand {
 impl Command<AccountKey, Account> for PaymentCommand {
     async fn execute(
         &self,
-        db: &mut MoiraDb<AccountKey, Account, PaymentCommand>,
+        db: &mut Task<AccountKey, Account, PaymentCommand>,
     ) -> TransactionResult {
         if self.sender == self.receiver {
             return TransactionResult::Abort("Same sender and receiver.".to_string());

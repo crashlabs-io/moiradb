@@ -1,5 +1,3 @@
-extern crate moiradb;
-
 use moiradb::{execute_block, kvstore::init, Block, Transaction};
 use moiradb_command_examples::payment::{Account, AccountKey, PaymentCommand};
 use rand::seq::SliceRandom;
@@ -60,7 +58,7 @@ async fn main() {
     let now = time::Instant::now();
     let cores = num_cpus::get(); // <- Change number of cores.
     println!(
-        "* running money transfers using PaymentCommand using {} cores",
+        "* running money transfers using PaymentCommand on {} cores",
         cores
     );
     execute_block(block, kv_adapter, cores).await;

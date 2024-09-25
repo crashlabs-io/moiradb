@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use moiradb::types::DBValue;
-use moiradb::{Command, MergeCommand, MoiraDb, TransactionResult};
+use moiradb::{Command, MergeCommand, Task, TransactionResult};
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -57,7 +57,7 @@ impl Command<BeaconKey, BeaconState> for BeaconCommand {
 
     async fn execute(
         &self,
-        db: &mut MoiraDb<BeaconKey, BeaconState, BeaconCommand>,
+        db: &mut Task<BeaconKey, BeaconState, BeaconCommand>,
     ) -> TransactionResult {
         match self {
             /* The logic to register a beacon as used */

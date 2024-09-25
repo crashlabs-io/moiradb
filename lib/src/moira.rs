@@ -16,8 +16,8 @@ pub enum WriteType<V> {
 }
 
 #[derive(Debug)]
-/// There is 1 MoiraDb per transaction.
-pub struct MoiraDb<K, V, C: ?Sized>
+/// There is 1 moira::Task per transaction.
+pub struct Task<K, V, C: ?Sized>
 where
     C: Debug,
     K: Debug,
@@ -44,18 +44,18 @@ where
     pub transaction: Arc<Transaction<K, C>>,
 }
 
-impl<K, V, C> MoiraDb<K, V, C>
+impl<K, V, C> Task<K, V, C>
 where
     K: 'static + Send + Serialize + Eq + Hash + Clone + Debug,
     V: 'static + Send + Sync + Serialize + DeserializeOwned + Debug,
     C: Command<K, V> + Debug,
 {
-    /// Construct a new instance of MoiraDb.
+    /// Construct a new instance of MoiraTask.
     pub fn new(
         transaction: Arc<Transaction<K, C>>,
         read_commands: UnboundedSender<MoiraCommand<K, V, C>>,
-    ) -> MoiraDb<K, V, C> {
-        MoiraDb {
+    ) -> Task<K, V, C> {
+        Task {
             seq: transaction.seq,
             write_set: transaction.write_set.iter().cloned().collect(),
             read_commands,
@@ -107,8 +107,8 @@ where
         self.kv_store.insert(key, WriteType::Write(Arc::new(None)));
     }
 
-    /// Sends back results to MoiraDb to commit, or abort or reschedule db writes
-    /// to the backing store. Consumes this instance of MoiraDb.
+    /// Sends back results to MoiraTask to commit, or abort or reschedule db writes
+    /// to the backing store. Consumes this instance of MoiraTask.
     ///
     /// When a command executes, it returns Abort, Commit, or Reschedule.
     ///
@@ -147,9 +147,9 @@ where
             .expect("channel to MultiVersionStore failed");
     }
 
-    /// Run the command, then consume this MoiraDb in set_outcome()
+    /// Run the command, then consume this MoiraTask in set_outcome()
     pub async fn run_command(mut self) -> u64 {
-        // Run the command with MoiraDb
+        // Run the command with MoiraTask
         let transaction = self.transaction.clone();
         let result = transaction.command.execute(&mut self).await;
         // Send back the result to the Moira server task.
@@ -159,7 +159,7 @@ where
     }
 }
 
-impl<K, V, C> MoiraDb<K, V, C>
+impl<K, V, C> Task<K, V, C>
 where
     K: 'static + Send + Serialize + Eq + Hash + Clone + Debug,
     V: 'static + Send + Sync + Serialize + DeserializeOwned + Debug,

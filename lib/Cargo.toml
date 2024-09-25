@@ -15,8 +15,7 @@ categories = ["database-implementations"]
 async-trait = "0.1.82"
 bincode = "1.3"
 futures = "0.3.30"
-num_cpus = "1.16.0"
-rand = "0.8.5"
 rocksdb = "0.22.0"
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.40", features = ["full"] }
+tokio = { version = "=1.40.0", features = ["full"] }
+tracing = "0.1.40"

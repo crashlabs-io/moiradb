@@ -1,5 +1,3 @@
-extern crate moiradb;
-
 use moiradb::{execute_block, kvstore::init, Block, Transaction};
 use moiradb_command_examples::replay_beacon::{BeaconCommand, BeaconKey, BeaconState};
 

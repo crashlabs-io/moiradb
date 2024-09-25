@@ -5,7 +5,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use std::hash::Hash;
 use std::{thread, time::Duration};
 
-/// A struct with similar methods to MoiraDb that we can use to measure similar
+/// A struct with similar methods to MoiraTask that we can use to measure similar
 /// operations in a completely single-threaded way.
 ///
 /// This is strictly for benchmarking purposes so we can answer the question
@@ -14,12 +14,12 @@ use std::{thread, time::Duration};
 /// You don't ever need to instantiate this, or attempt to emulate it in your
 /// own applications - in fact it's a demonstration of what we *don't* want to
 /// do.
-pub struct NotMoiraDb {
+pub struct NotMoiraTask {
     pub seq: u64,
     pub store: DB, // mock to make things type check
 }
 
-impl NotMoiraDb {
+impl NotMoiraTask {
     pub fn read<K, V>(&self, key: &K) -> Option<V>
     where
         K: Eq + Hash + Serialize,
@@ -54,7 +54,7 @@ impl NotMoiraDb {
     }
 }
 
-pub fn execute(command: &PaymentCommand, db: &mut NotMoiraDb) -> TransactionResult {
+pub fn execute(command: &PaymentCommand, db: &mut NotMoiraTask) -> TransactionResult {
     let sender_record: Option<Account> = db.read(&command.sender);
     let receiver_record: Option<Account> = db.read(&command.receiver);
 
@@ -100,7 +100,7 @@ mod tests {
         let path = "/tmp/test_insert.rocksdb";
         let _ = DB::destroy(&Options::default(), path);
         let store = DB::open_default(path).expect("database barfed on open");
-        let mut db = NotMoiraDb { seq: 0, store };
+        let mut db = NotMoiraTask { seq: 0, store };
 
         let key = [0; 32];
         let value = Account {
@@ -117,7 +117,7 @@ mod tests {
         let path = "/tmp/test_delete.rocksdb";
         let _ = DB::destroy(&Options::default(), path);
         let store = DB::open_default(path).expect("database barfed on open");
-        let mut db = NotMoiraDb { seq: 0, store };
+        let mut db = NotMoiraTask { seq: 0, store };
 
         let key = [0; 32];
         let value = Account {
