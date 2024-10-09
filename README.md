@@ -49,7 +49,7 @@ In Greek mythology, *Moira* (or the *[Moirai](https://en.wikipedia.org/wiki/Moir
 
 ## Using it in your software
 
-Depend on the `moriadb` crate in `lib`. Use it as a logical layer to achieve higher throughput when you need an in-process key-value store (like RocksDB or similar) and can guarantee blocks which [totally order](https://en.wikipedia.org/wiki/Total_order) transactions before they arrive.
+Depend on the `moiradb` crate in `lib`. Use it as a logical layer to achieve higher throughput when you need an in-process key-value store (like RocksDB or similar) and can guarantee blocks which [totally order](https://en.wikipedia.org/wiki/Total_order) transactions before they arrive.
 
 ## Should I use this in my software?
 
