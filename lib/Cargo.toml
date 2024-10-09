@@ -1,6 +1,6 @@
 [package]
 name = "moiradb"
-version = "0.3.0-dev"
+version = "0.3.0"
 authors = ["Dave Hrycyszyn"]
 edition = "2018"
 license = "Apache-2.0"
